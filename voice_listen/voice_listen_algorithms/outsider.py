@@ -43,10 +43,12 @@ import os
 import tempfile
 
 class CloudVLA(VLABase):
-    def __init__(self, *args, lang="ru"):
+    def __init__(self, *args, lang="ru", timeout: float = 5):
         super().__init__(*args)
         self.recognizer = sr.Recognizer()
         self.lang = "ru-RU" if lang == "ru" else "en-US"
+        self.timeout = timeout
+
         self.mic_index = 1 if os.name != 'nt' else None 
         self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
         with self.source as source:
@@ -61,30 +63,36 @@ class CloudVLA(VLABase):
         self.recognizer.pause_threshold = 2
         self.recognizer.non_speaking_duration = 1.0
         self.recognizer.energy_threshold = 130 
+        self.recognizer.operation_timeout = self.timeout
 
-        
-        with self.source as source:
-            audio_data = self.recognizer.listen(source, timeout=None, phrase_time_limit=None)
-
-        with open(wave_path, "wb") as f:
-            f.write(audio_data.get_wav_data())
-
-        print("Обработка...")
-        
-        try:
-            with sr.AudioFile(wave_path) as source_file:
-                audio_to_send = self.recognizer.record(source_file)
-                text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
-            
-            if text:
-                self.send_request(text)
+        while True:
+            try:
+                with self.source as source:
+                    audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
+            except sr.WaitTimeoutError:
+                print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
+                break
                 
-        except Exception as e:
-            print(f"Ошибка распознавания: {e}")
-        
-        finally:
-            if os.path.exists(wave_path):
-                try:
-                    os.remove(wave_path)
-                except PermissionError:
-                    print("Не удалось удалить временный файл, он еще занят.")
+
+            with open(wave_path, "wb") as f:
+                f.write(audio_data.get_wav_data())
+
+            print("Обработка...")
+            
+            try:
+                with sr.AudioFile(wave_path) as source_file:
+                    audio_to_send = self.recognizer.record(source_file)
+                    text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
+                
+                if text:
+                    self.send_request(text)
+                    
+            except Exception as e:
+                print(f"Ошибка распознавания: {e}")
+            
+            finally:
+                if os.path.exists(wave_path):
+                    try:
+                        os.remove(wave_path)
+                    except PermissionError:
+                        print("Не удалось удалить временный файл, он еще занят.")
