@@ -2,7 +2,8 @@ from voice_activation.voice_activations_algorithms.outsider import PVAlgorithm
 from voice_activation.va_manage import VAManager
 from voice_listen.voice_listen_manage import VLManager
 from voice_listen.voice_listen_algorithms.outsider import CloudVLA
-from engine.engine_manage import GPTModel
+from engine.engine_manage import EngineManager
+from engine.engines.llm_engine import GroqLLMEngine
 
 import os
 from dotenv import load_dotenv
@@ -22,11 +23,13 @@ class Manager:
             self.vl_manager.listen_micro()
 
 if __name__ == "__main__":
+    engine = GroqLLMEngine(api_key=groq_api_key)
+    e_manager = EngineManager(engine)
+
     predict_algorithm = PVAlgorithm(word_api_key, "alexa")
-    
     va_manager = VAManager(predict_algorithm)
 
-    vla = CloudVLA(lambda request: print("lamda", GPTModel(api_key=groq_api_key, use_random=False).get_answer_without_history([{"role": "user", "content": request}])))
+    vla = CloudVLA(e_manager.handle)
     vl_manager = VLManager(vla)
 
 
