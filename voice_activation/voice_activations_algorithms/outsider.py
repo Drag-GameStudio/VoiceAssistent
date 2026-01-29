@@ -3,6 +3,8 @@ import pvporcupine
 import pyaudio
 import struct
 
+
+
 # class OWKAlgorithm(BaseVAAlgorithm):
 
 #     def __init__(self, model_name = "alexa" ):
@@ -22,11 +24,10 @@ import struct
 #         self.oww_model.reset()
 
 class PVAlgorithm(BaseVAAlgorithm):
-    ACCESS_KEY = "oKhtU7XcdN4Y/8EL3DoOor+oCcGG/y3ScVa50VKfrx+Dvd7sm297vw==" 
-    def __init__(self, model_name = "alexa"):
+    def __init__(self, api_key, model_name = "alexa"):
         super().__init__()
         self.model_name = model_name
-        self.porcupine = pvporcupine.create(access_key=self.ACCESS_KEY, keywords=[model_name])
+        self.porcupine = pvporcupine.create(access_key=api_key, keywords=[model_name])
 
         self.CHUNK = self.porcupine.frame_length
         self.RATE = self.porcupine.sample_rate
