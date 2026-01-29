@@ -5,7 +5,7 @@ from voice_listen.voice_listen_algorithms.outsider import CloudVLA
 from engine.engine_manage import EngineManager
 from engine.engines.llm_engine import GroqLLMEngine
 from voice_acting.voice_acting_manage import VActingManager
-from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, EdgeVActingAlgorithmCutting
+from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm
 
 
 import os
@@ -26,14 +26,17 @@ class Manager:
             self.vl_manager.listen_micro()
 
 if __name__ == "__main__":
-    edge_alg = EdgeVActingAlgorithmCutting()
+    predict_algorithm = PVAlgorithm(word_api_key, "alexa")
+    va_manager = VAManager(predict_algorithm)
+
+
+    edge_alg = EdgeVActingAlgorithm(va_manager=va_manager)
     vacting_manager = VActingManager(edge_alg)
 
     engine = GroqLLMEngine(api_key=groq_api_key)
     e_manager = EngineManager(engine)
 
-    predict_algorithm = PVAlgorithm(word_api_key, "alexa")
-    va_manager = VAManager(predict_algorithm)
+    
 
     vla = CloudVLA(lambda request: vacting_manager.acting(e_manager.handle(request)))
     vl_manager = VLManager(vla)
