@@ -1,7 +1,7 @@
 from voice_activation.voice_activations_algorithms.outsider import PVAlgorithm
 from voice_activation.va_manage import VAManager
 from voice_listen.voice_listen_manage import VLManager
-from voice_listen.voice_listen_algorithms.outsider import VoskVLA, SRVLA, CloudVLA
+from voice_listen.voice_listen_algorithms.outsider import CloudVLA
 
 
     
