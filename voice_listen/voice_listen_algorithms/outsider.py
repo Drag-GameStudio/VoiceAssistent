@@ -47,12 +47,11 @@ class CloudVLA(VLABase):
         super().__init__(*args)
         self.recognizer = sr.Recognizer()
         self.lang = "ru-RU" if lang == "ru" else "en-US"
-        # Для Raspberry Pi оставляем индекс 1, для Windows можно убрать или поставить 0
         self.mic_index = 1 if os.name != 'nt' else None 
         self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
-        print("Настройка шума...")
         with self.source as source:
             self.recognizer.adjust_for_ambient_noise(source, duration=1)
+        print("READY")
 
     def listen_micro(self):
         tmp_dir = tempfile.gettempdir()
