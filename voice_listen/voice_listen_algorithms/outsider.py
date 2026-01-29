@@ -2,7 +2,7 @@ import pyaudio
 import vosk
 import json
 from .base import VLABase
-
+import os
 
 class VoskVLA(VLABase):
     def __init__(self, *args, lang="ru"):
@@ -37,3 +37,55 @@ class VoskVLA(VLABase):
         self.stream.stop_stream()
         self.stream.close()
         
+
+import speech_recognition as sr
+import os
+import tempfile
+
+class CloudVLA(VLABase):
+    def __init__(self, *args, lang="ru"):
+        super().__init__(*args)
+        self.recognizer = sr.Recognizer()
+        self.lang = "ru-RU" if lang == "ru" else "en-US"
+        # Для Raspberry Pi оставляем индекс 1, для Windows можно убрать или поставить 0
+        self.mic_index = 1 if os.name != 'nt' else None 
+        self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
+        print("Настройка шума...")
+        with self.source as source:
+            self.recognizer.adjust_for_ambient_noise(source, duration=1)
+
+    def listen_micro(self):
+        tmp_dir = tempfile.gettempdir()
+        wave_path = os.path.join(tmp_dir, "voice_temp.wav")
+
+        
+        self.recognizer.pause_threshold = 2
+        self.recognizer.non_speaking_duration = 1.0
+        self.recognizer.energy_threshold = 130 
+
+        
+        with self.source as source:
+            audio_data = self.recognizer.listen(source, timeout=None, phrase_time_limit=None)
+
+        with open(wave_path, "wb") as f:
+            f.write(audio_data.get_wav_data())
+
+        print("Обработка...")
+        
+        try:
+            with sr.AudioFile(wave_path) as source_file:
+                audio_to_send = self.recognizer.record(source_file)
+                text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
+            
+            if text:
+                self.send_request(text)
+                
+        except Exception as e:
+            print(f"Ошибка распознавания: {e}")
+        
+        finally:
+            if os.path.exists(wave_path):
+                try:
+                    os.remove(wave_path)
+                except PermissionError:
+                    print("Не удалось удалить временный файл, он еще занят.")
