@@ -4,6 +4,14 @@ import asyncio
 import edge_tts
 import os
 import pygame
+from mutagen.mp3 import MP3
+import time
+import os
+import pygame
+from gtts import gTTS
+from pathos.helpers import mp as multiprocessing
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 class EdgeVActingAlgorithm(BaseVActingAlgorithm):
     OUTPUT_FILE_PATH = "voice.mp3"
@@ -31,14 +39,22 @@ class EdgeVActingAlgorithm(BaseVActingAlgorithm):
             loop.close()
 
         if os.path.exists(self.OUTPUT_FILE_PATH) and os.path.getsize(self.OUTPUT_FILE_PATH) > 0:
-            pygame.mixer.init()
+            audio = MP3(self.OUTPUT_FILE_PATH)
+            duration = audio.info.length
+            stop_at = max(0, duration - 0.5) 
 
+            pygame.mixer.init()
             pygame.mixer.music.load(self.OUTPUT_FILE_PATH)
             pygame.mixer.music.play()
             
-            while pygame.mixer.music.get_busy():
-                pass
+            start_time = time.time()
             
+            while pygame.mixer.music.get_busy():
+                if time.time() - start_time >= stop_at:
+                    pygame.mixer.music.stop()
+                    break
+            time.sleep(0.02)
+        
             pygame.mixer.music.unload()
             pygame.mixer.quit()
             
@@ -46,64 +62,53 @@ class EdgeVActingAlgorithm(BaseVActingAlgorithm):
                 os.remove(self.OUTPUT_FILE_PATH)
 
 
-from mutagen.mp3 import MP3
-import time
-class EdgeVActingAlgorithmCutting(EdgeVActingAlgorithm):
-    def acting(self, request):
-        communicate = edge_tts.Communicate(request, self.voice)
-        asyncio.run(communicate.save(self.OUTPUT_FILE_PATH))
-
-        audio = MP3(self.OUTPUT_FILE_PATH)
-        duration = audio.info.length
-        stop_at = max(0, duration - 0.5) 
-
-        pygame.mixer.init()
-        pygame.mixer.music.load(self.OUTPUT_FILE_PATH)
-        pygame.mixer.music.play()
-        
-        start_time = time.time()
-        
-        while pygame.mixer.music.get_busy():
-            if time.time() - start_time >= stop_at:
-                pygame.mixer.music.stop()
-                break
-            time.sleep(0.02)
-        
-        pygame.mixer.music.unload()
-        pygame.mixer.quit()
-        
-        if os.path.exists(self.OUTPUT_FILE_PATH):
-            os.remove(self.OUTPUT_FILE_PATH)
-
-import os
-import pygame
-from gtts import gTTS
-
 class GoogleVActingAlgorithm(BaseVActingAlgorithm):
-    OUTPUT_FILE_PATH = "voice.mp3"
+    OUTPUT_FOLDER_PATH = ".temp_folder"
 
     def __init__(self, *args, lang: str = "ru"):
         super().__init__(*args)
         self.lang = lang
 
-    def acting(self, request: str):
+
+    def get_voice_path(self, id):
+        return os.path.join(self.OUTPUT_FOLDER_PATH, f"voice_{id}.mp3")
+
+    def gen_sound(self, id, request):
+        file_path = self.get_voice_path(id)
+        time.sleep(id)
         try:
-            # Создаем объект TTS (использует API переводчика)
             tts = gTTS(text=request, lang=self.lang, slow=False)
-            tts.save(self.OUTPUT_FILE_PATH)
+            tts.save(file_path)
         except Exception as e:
             print(f"Ошибка gTTS: {e}")
-            return
+            return        
 
-        # Блок воспроизведения (ваш стандартный pygame)
-        if os.path.exists(self.OUTPUT_FILE_PATH):
-            pygame.mixer.init()
-            pygame.mixer.music.load(self.OUTPUT_FILE_PATH)
+    def play_sound_by_id(self, id):
+        file_path = self.get_voice_path(id)
+        if os.path.exists(file_path):
+            pygame.mixer.music.load(file_path)
             pygame.mixer.music.play()
             
             while pygame.mixer.music.get_busy():
                 pygame.time.Clock().tick(10)
             
             pygame.mixer.music.unload()
+            os.remove(file_path)
+            return True
+        return False
+
+    def acting(self, request: str):
+        req_parts = request.split(".")
+        gen_voice_workers = [multiprocessing.Process(target=self.gen_sound, args=(i, part)) for i, part in enumerate(req_parts)]
+        for worker in gen_voice_workers:
+            worker.start()
+
+        pygame.mixer.init()
+        try:
+            for i, worker in enumerate(gen_voice_workers):
+                worker.join()
+                print(self.play_sound_by_id(i))
+        finally:
             pygame.mixer.quit()
-            os.remove(self.OUTPUT_FILE_PATH)
+
+        

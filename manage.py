@@ -3,13 +3,12 @@ import threading
 from voice_activation.voice_activations_algorithms.outsider import PVAlgorithm
 from voice_activation.va_manage import VAManager
 from voice_listen.voice_listen_manage import VLManager
-from voice_listen.voice_listen_algorithms.outsider import CloudVLA
+from voice_listen.voice_listen_algorithms.outsider import CloudVLA, VoskVLA
 from engine.engine_manage import EngineManager
 from engine.engines.llm_engine import GroqLLMEngine
 from voice_acting.voice_acting_manage import VActingManager
 from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm 
 from process_control.runner import run_multi_va_and_task
-
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -27,11 +26,7 @@ class Manager:
             self.va_manager.listen_micro()
             self.vl_manager.listen_micro()
 
-
-
-
 def create_handler(va_manager, vacting_manager: VActingManager, e_manager: EngineManager):
-    # Эта функция "видит" переменные внешней функции
     def handle_request(request: str):
         print(request)
         return run_multi_va_and_task(request, va_manager, lambda request: vacting_manager.acting(e_manager.handle(request)))
@@ -48,9 +43,8 @@ if __name__ == "__main__":
     predict_algorithm = PVAlgorithm(word_api_key, "alexa")
     va_manager = VAManager(predict_algorithm)
 
-    vla = CloudVLA(create_handler(va_manager, vacting_manager, e_manager))
+    vla = VoskVLA(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
-
 
     manager = Manager(va_manager, vl_manager)    
     manager.start()    
