@@ -43,5 +43,4 @@ class PVAlgorithm(BaseVAAlgorithm):
 
     def quite_proccessing(self):
         del self.porcupine
-        print("DEL")
         return super().quite_proccessing()

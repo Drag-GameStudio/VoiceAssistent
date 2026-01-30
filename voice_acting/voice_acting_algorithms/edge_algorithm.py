@@ -6,12 +6,11 @@ import os
 import pygame
 from mutagen.mp3 import MP3
 import time
-import os
-import pygame
 from gtts import gTTS
 from pathos.helpers import mp as multiprocessing
+from sounds.sound_control import PlayAudioManager
+from singleton_models.middleware import middleware_object
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 class EdgeVActingAlgorithm(BaseVActingAlgorithm):
     OUTPUT_FILE_PATH = "voice.mp3"
@@ -33,31 +32,16 @@ class EdgeVActingAlgorithm(BaseVActingAlgorithm):
             loop.run_until_complete(communicate.save(self.OUTPUT_FILE_PATH))
         except Exception as e:
             print(f"Сетевая ошибка (игнорируем): {e}")
+            middleware_object.start_action("on_error")
+
         finally:
             print("Завершаю цикл...")
             loop.run_until_complete(loop.shutdown_asyncgens())
             loop.close()
 
         if os.path.exists(self.OUTPUT_FILE_PATH) and os.path.getsize(self.OUTPUT_FILE_PATH) > 0:
-            audio = MP3(self.OUTPUT_FILE_PATH)
-            duration = audio.info.length
-            stop_at = max(0, duration - 0.5) 
+            PlayAudioManager().play_sound(self.OUTPUT_FILE_PATH).join()
 
-            pygame.mixer.init()
-            pygame.mixer.music.load(self.OUTPUT_FILE_PATH)
-            pygame.mixer.music.play()
-            
-            start_time = time.time()
-            
-            while pygame.mixer.music.get_busy():
-                if time.time() - start_time >= stop_at:
-                    pygame.mixer.music.stop()
-                    break
-            time.sleep(0.02)
-        
-            pygame.mixer.music.unload()
-            pygame.mixer.quit()
-            
             if os.path.exists(self.OUTPUT_FILE_PATH):
                 os.remove(self.OUTPUT_FILE_PATH)
 
@@ -74,6 +58,8 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
         return os.path.join(self.OUTPUT_FOLDER_PATH, f"voice_{id}.mp3")
 
     def gen_sound(self, id, request):
+        if len(request) < 2:
+            return
         file_path = self.get_voice_path(id)
         time.sleep(id)
         try:
@@ -86,13 +72,8 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
     def play_sound_by_id(self, id):
         file_path = self.get_voice_path(id)
         if os.path.exists(file_path):
-            pygame.mixer.music.load(file_path)
-            pygame.mixer.music.play()
-            
-            while pygame.mixer.music.get_busy():
-                pygame.time.Clock().tick(10)
-            
-            pygame.mixer.music.unload()
+            sound_process = PlayAudioManager().play_sound(file_path, with_daemon=True)
+            sound_process.join()
             os.remove(file_path)
             return True
         return False
@@ -103,11 +84,10 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
         for worker in gen_voice_workers:
             worker.start()
 
-        pygame.mixer.init()
         try:
             for i, worker in enumerate(gen_voice_workers):
                 worker.join()
-                print(self.play_sound_by_id(i))
+                self.play_sound_by_id(i)
         finally:
             pygame.mixer.quit()
 

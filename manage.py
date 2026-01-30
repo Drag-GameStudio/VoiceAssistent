@@ -9,6 +9,7 @@ from engine.engines.llm_engine import GroqLLMEngine
 from voice_acting.voice_acting_manage import VActingManager
 from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm 
 from process_control.runner import run_multi_va_and_task
+from singleton_models.middleware import middleware_object
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -23,7 +24,7 @@ class Manager:
 
     def start(self):
         while True:
-            self.va_manager.listen_micro()
+            self.va_manager.listen_micro(multi_worker=False)
             self.vl_manager.listen_micro()
 
 def create_handler(va_manager, vacting_manager: VActingManager, e_manager: EngineManager):
@@ -34,6 +35,8 @@ def create_handler(va_manager, vacting_manager: VActingManager, e_manager: Engin
     return handle_request
 
 if __name__ == "__main__":
+    middleware_object.start_action("on_error")
+
     edge_alg = GoogleVActingAlgorithm()
     vacting_manager = VActingManager(edge_alg)
 
@@ -43,7 +46,7 @@ if __name__ == "__main__":
     predict_algorithm = PVAlgorithm(word_api_key, "alexa")
     va_manager = VAManager(predict_algorithm)
 
-    vla = VoskVLA(create_handler(va_manager, vacting_manager, e_manager))
+    vla = CloudVLA(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
 
     manager = Manager(va_manager, vl_manager)    

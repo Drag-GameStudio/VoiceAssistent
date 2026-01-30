@@ -1,9 +1,21 @@
 import ctypes
 from pathos.helpers import mp as multiprocessing
-import threading
 from voice_activation.va_manage import VAManager
+import psutil
 
-
+def kill_child_processes(parent_pid):
+    try:
+        parent = psutil.Process(parent_pid)
+    except psutil.NoSuchProcess:
+        return
+    
+    # Находим всех "детей" и убиваем их
+    children = parent.children(recursive=True)
+    for child in children:
+        child.terminate()
+    
+    # Ждем завершения
+    psutil.wait_procs(children, timeout=3)
 
 def kill_thread(thread):
     """Принудительно вызывает исключение внутри потока"""
@@ -35,13 +47,12 @@ def run_multi_va_and_task(request, va_manager: VAManager, run_func):
         if not task_process.is_alive():
             print("Задача (task_thread) завершена. Останавливаю микрофон...")
             va_process.terminate()  # Жёстко убиваем процесс микрофона
-            task_process.join()
-            task_process.terminate()
             break
         
         if not va_process.is_alive():
             print("Микрофон перестал слушать сам.")
             task_process.terminate()
+            kill_child_processes(task_process.pid)
 
             break
         

@@ -3,6 +3,8 @@ import vosk
 import json
 from .base import VLABase
 import os
+from singleton_models.middleware import middleware_object
+
 
 class VoskVLA(VLABase):
     def __init__(self, *args, lang="ru"):
@@ -32,6 +34,7 @@ class VoskVLA(VLABase):
                 result = json.loads(self.rec.Result())
                 if result['text'] == "":
                     count_of_empty += 1
+                self.end_listen()
                 self.send_request(result['text'])
 
         self.stream.stop_stream()
@@ -73,7 +76,8 @@ class CloudVLA(VLABase):
             except sr.WaitTimeoutError:
                 print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
                 break
-                
+
+            self.end_listen()
 
             with open(wave_path, "wb") as f:
                 f.write(audio_data.get_wav_data())
@@ -89,8 +93,7 @@ class CloudVLA(VLABase):
                     self.send_request(text)
                     
             except Exception as e:
-                print(f"Ошибка распознавания: {e}")
-            
+                middleware_object.start_action("on_error")
             finally:
                 if os.path.exists(wave_path):
                     try:
