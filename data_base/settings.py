@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent
 SECRET_KEY = 'fake-key-for-standalone-script'
 DEBUG = True
 INSTALLED_APPS = [
-    'data_base.test_app', 
+    'data_base.dialogs', 
 ]
 
 DATABASES = {

@@ -46,6 +46,7 @@ class EdgeVActingAlgorithm(BaseVActingAlgorithm):
                 os.remove(self.OUTPUT_FILE_PATH)
 
 
+import threading
 class GoogleVActingAlgorithm(BaseVActingAlgorithm):
     OUTPUT_FOLDER_PATH = ".temp_folder"
 
@@ -58,8 +59,7 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
         return os.path.join(self.OUTPUT_FOLDER_PATH, f"voice_{id}.mp3")
 
     def gen_sound(self, id, request):
-        if len(request) < 2:
-            return
+        
         file_path = self.get_voice_path(id)
         time.sleep(id)
         try:
@@ -72,15 +72,16 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
     def play_sound_by_id(self, id):
         file_path = self.get_voice_path(id)
         if os.path.exists(file_path):
-            sound_process = PlayAudioManager().play_sound(file_path, with_daemon=True)
-            sound_process.join()
+            sound_process = PlayAudioManager().play_sound(file_path, is_thread=False, with_daemon=True)
             os.remove(file_path)
             return True
         return False
 
     def acting(self, request: str):
         req_parts = request.split(".")
-        gen_voice_workers = [multiprocessing.Process(target=self.gen_sound, args=(i, part)) for i, part in enumerate(req_parts)]
+        if len(req_parts[-1]) < 2:
+            req_parts.pop(len(req_parts) - 1)
+        gen_voice_workers = [threading.Thread(target=self.gen_sound, args=(i, part)) for i, part in enumerate(req_parts)]
         for worker in gen_voice_workers:
             worker.start()
 

@@ -36,9 +36,10 @@ def kill_thread(thread):
         print("Ошибка при попытке убить поток")
 
 import time
+import threading
 
 def run_multi_va_and_task(request, va_manager: VAManager, run_func):
-    task_process = multiprocessing.Process(target=run_func, args=(request,))
+    task_process = threading.Thread(target=run_func, args=(request,))
     va_process = multiprocessing.Process(target=va_manager.listen_micro)
     va_process.start()
     task_process.start()
@@ -51,8 +52,9 @@ def run_multi_va_and_task(request, va_manager: VAManager, run_func):
         
         if not va_process.is_alive():
             print("Микрофон перестал слушать сам.")
-            task_process.terminate()
-            kill_child_processes(task_process.pid)
+            # task_process.terminate()
+            # kill_child_processes(task_process.pid)
+            kill_thread(task_process)
 
             break
         

@@ -8,6 +8,5 @@ class EngineManager:
     def handle(self, request):
         response = self.engine.handle(request)
         print(response)
-        self.engine.quite_proccessing()
         return response
 

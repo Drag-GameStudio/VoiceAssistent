@@ -31,10 +31,13 @@ class PlayAudioManager:
         pygame.mixer.music.unload()
         pygame.mixer.quit()
 
-    def play_sound(self, sound_name: str, with_daemon=False):
+    def play_sound(self, sound_name: str, is_thread=True, with_daemon=False):
         file_path = self.get_file_path(sound_name)
-        sound_process = threading.Thread(target=self.play_sound_process, args=(file_path,))
-        sound_process.daemon = with_daemon
-        sound_process.start()
+        if is_thread:
+            sound_process = threading.Thread(target=self.play_sound_process, args=(file_path,))
+            sound_process.daemon = with_daemon
+            sound_process.start()
 
-        return sound_process
+            return sound_process
+        
+        self.play_sound_process(file_path)
