@@ -1,5 +1,3 @@
-import ctypes
-import threading
 from voice_activation.voice_activations_algorithms.outsider import PVAlgorithm
 from voice_activation.va_manage import VAManager
 from voice_listen.voice_listen_manage import VLManager
@@ -13,6 +11,7 @@ from singleton_models.middleware import middleware_object
 import os
 from dotenv import load_dotenv
 load_dotenv()
+
 
 groq_api_key = os.getenv("GROQ_API_KEY")
 word_api_key = os.getenv("WORD_API_KEY")
