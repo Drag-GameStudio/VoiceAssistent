@@ -55,6 +55,8 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
         return os.path.join(self.OUTPUT_FOLDER_PATH, f"voice_{id}.mp3")
 
     def gen_sound(self, id, request):
+        if len(request) < 2:
+            return
         file_path = self.get_voice_path(id)
         time.sleep(id)
         try:
