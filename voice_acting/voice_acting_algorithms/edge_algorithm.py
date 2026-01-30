@@ -9,6 +9,7 @@ import time
 from gtts import gTTS
 from pathos.helpers import mp as multiprocessing
 from sounds.sound_control import PlayAudioManager
+from singleton_models.middleware import middleware_object
 
 
 class EdgeVActingAlgorithm(BaseVActingAlgorithm):
@@ -31,6 +32,8 @@ class EdgeVActingAlgorithm(BaseVActingAlgorithm):
             loop.run_until_complete(communicate.save(self.OUTPUT_FILE_PATH))
         except Exception as e:
             print(f"Сетевая ошибка (игнорируем): {e}")
+            middleware_object.start_action("on_error")
+
         finally:
             print("Завершаю цикл...")
             loop.run_until_complete(loop.shutdown_asyncgens())

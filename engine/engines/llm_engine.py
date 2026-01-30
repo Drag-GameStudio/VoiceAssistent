@@ -1,6 +1,7 @@
 from .base import BaseEngine
 from groq import Groq
 from .promts import DEFAULT_ASSISTENT_PROMPT
+from singleton_models.middleware import middleware_object
 
 
 class History:
@@ -58,4 +59,6 @@ class GroqLLMEngine(LLMModel):
             
         except Exception as e:
             print(e)
+            middleware_object.start_action("on_error")
+
             return e[:50]

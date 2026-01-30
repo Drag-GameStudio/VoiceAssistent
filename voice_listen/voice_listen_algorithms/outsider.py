@@ -3,6 +3,8 @@ import vosk
 import json
 from .base import VLABase
 import os
+from singleton_models.middleware import middleware_object
+
 
 class VoskVLA(VLABase):
     def __init__(self, *args, lang="ru"):
@@ -91,8 +93,7 @@ class CloudVLA(VLABase):
                     self.send_request(text)
                     
             except Exception as e:
-                print(f"Ошибка распознавания: {e}")
-            
+                middleware_object.start_action("on_error")
             finally:
                 if os.path.exists(wave_path):
                     try:

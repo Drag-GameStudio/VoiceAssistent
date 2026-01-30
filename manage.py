@@ -35,6 +35,7 @@ def create_handler(va_manager, vacting_manager: VActingManager, e_manager: Engin
     return handle_request
 
 if __name__ == "__main__":
+    middleware_object.start_action("on_error")
 
     edge_alg = GoogleVActingAlgorithm()
     vacting_manager = VActingManager(edge_alg)

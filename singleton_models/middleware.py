@@ -17,6 +17,13 @@ class Middleware:
     def activate_by_word(self):
         self.play_sound_manager.play_sound(r"ssword_activate.mp3")
 
+    def stop_listening(self):
+        self.play_sound_manager.play_sound(r"ssstop.mp3")
+
+    def on_error(self):
+        self.play_sound_manager.play_sound(r"sserror.mp3")
+
+
     def start_action(self, action_name):
         try:
             use_func = getattr(self, action_name)
