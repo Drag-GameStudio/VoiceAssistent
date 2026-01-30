@@ -32,6 +32,7 @@ class VoskVLA(VLABase):
                 result = json.loads(self.rec.Result())
                 if result['text'] == "":
                     count_of_empty += 1
+                self.end_listen()
                 self.send_request(result['text'])
 
         self.stream.stop_stream()
@@ -73,7 +74,8 @@ class CloudVLA(VLABase):
             except sr.WaitTimeoutError:
                 print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
                 break
-                
+
+            self.end_listen()
 
             with open(wave_path, "wb") as f:
                 f.write(audio_data.get_wav_data())

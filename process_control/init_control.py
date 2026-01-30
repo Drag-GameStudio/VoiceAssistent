@@ -16,5 +16,5 @@ class MultiProccessActivation:
     def quite_proccessing(self):
         if self.is_initialized:
             self.is_initialized = False
-            self.custom_quite
+            self.custom_quite()
 

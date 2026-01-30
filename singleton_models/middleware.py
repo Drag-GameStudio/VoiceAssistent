@@ -1,4 +1,5 @@
 from sounds.sound_control import PlayAudioManager
+import time
 
 class Middleware:
     _instance = None
@@ -9,12 +10,18 @@ class Middleware:
             cls.play_sound_manager = PlayAudioManager()
         return cls._instance
 
+    def end_listen(self):
+        self.play_sound_manager.play_sound(r"C:\Users\sinic\OneDrive\Документы\GitHub\VoiceAssistent\sounds\source\soundalike-alert-1.mp3")
+
+
     def activate_by_word(self):
-        self.play_sound_manager.play_sound(r"C:\Users\sinic\OneDrive\Документы\GitHub\VoiceAssistent\sounds\source\activating-alarm-buttons-pressed-bleeps-108309.mp3")
+        self.play_sound_manager.play_sound(r"C:\Users\sinic\OneDrive\Документы\GitHub\VoiceAssistent\sounds\source\soundalike-alert-1.mp3")
+
     def start_action(self, action_name):
         try:
             use_func = getattr(self, action_name)
             use_func()
+
         except:
             ...
 

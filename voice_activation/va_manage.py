@@ -37,6 +37,6 @@ class VAManager:
         stream.close()
         self.predict_algorithm.quite_proccessing()
 
-        time.sleep(0.2)
+        time.sleep(0.3)
         if multi_worker:
             os.kill(os.getpid(), signal.SIGTERM)

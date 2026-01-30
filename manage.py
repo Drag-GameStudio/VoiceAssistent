@@ -45,7 +45,7 @@ if __name__ == "__main__":
     predict_algorithm = PVAlgorithm(word_api_key, "alexa")
     va_manager = VAManager(predict_algorithm)
 
-    vla = VoskVLA(create_handler(va_manager, vacting_manager, e_manager))
+    vla = CloudVLA(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
 
     manager = Manager(va_manager, vl_manager)    

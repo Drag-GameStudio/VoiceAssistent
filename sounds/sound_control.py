@@ -21,9 +21,8 @@ class PlayAudioManager:
 
         pygame.mixer.music.load(file_path)
         pygame.mixer.music.play()
-
         while pygame.mixer.music.get_busy():
-            time.sleep(0.1)
+            pass
 
         pygame.mixer.music.unload()
         pygame.mixer.quit()
@@ -31,6 +30,8 @@ class PlayAudioManager:
     def play_sound(self, sound_name: str, with_daemon=False):
         file_path = self.get_file_path(sound_name)
         sound_process = multiprocessing.Process(target=self.play_sound_process, args=(file_path,))
+
         sound_process.daemon = with_daemon
         sound_process.start()
+
         return sound_process
