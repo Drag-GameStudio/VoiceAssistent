@@ -22,21 +22,29 @@ class LLMModel(BaseEngine):
         self.api_key = api_key
         self.model_name = model_name
 
-
+    
     def generate_answer(self) -> str:
         return "answer"
     
     def handle(self, request: str) -> str:
+        super().handle(request)
         self.history.add_to_history("user", request)
         model_answer = self.generate_answer()
         self.history.add_to_history("assistant", model_answer)
         return model_answer
 
 class GroqLLMEngine(LLMModel):
+
     def __init__(self, *args, **kawargs):
         super().__init__(*args, **kawargs)
-        self.client = Groq(api_key=self.api_key)
 
+    def custom_initialize(self):
+        self.client = Groq(api_key=self.api_key)
+        super().custom_initialize()
+    
+    def custom_quite(self):
+        del self.client
+        return super().custom_quite()
 
     def generate_answer(self):
         try:

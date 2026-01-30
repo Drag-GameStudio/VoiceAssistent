@@ -55,6 +55,7 @@ class CloudVLA(VLABase):
             self.recognizer.adjust_for_ambient_noise(source, duration=1)
         print("READY")
 
+        
     def listen_micro(self):
         tmp_dir = tempfile.gettempdir()
         wave_path = os.path.join(tmp_dir, "voice_temp.wav")
@@ -62,7 +63,7 @@ class CloudVLA(VLABase):
         
         self.recognizer.pause_threshold = 2
         self.recognizer.non_speaking_duration = 1.0
-        self.recognizer.energy_threshold = 130 
+        self.recognizer.energy_threshold = 130
         self.recognizer.operation_timeout = self.timeout
 
         while True:

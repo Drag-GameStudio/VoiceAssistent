@@ -1,7 +1,8 @@
 from abc import abstractmethod, ABC
+from process_control.init_control import MultiProccessActivation
 
 
-class VLABase(ABC):
+class VLABase(ABC, MultiProccessActivation):
 
     def __init__(self, handler_func):
         self.handler_func = handler_func

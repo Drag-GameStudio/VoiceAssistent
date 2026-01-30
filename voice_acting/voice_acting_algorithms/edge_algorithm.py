@@ -1,3 +1,4 @@
+import sys
 from .base import BaseVActingAlgorithm
 import asyncio
 import edge_tts
@@ -13,22 +14,37 @@ class EdgeVActingAlgorithm(BaseVActingAlgorithm):
 
 
     def acting(self, request):
+        if sys.platform == 'win32':
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
         communicate = edge_tts.Communicate(request, self.voice)
-        asyncio.run(communicate.save(self.OUTPUT_FILE_PATH))
 
-        pygame.mixer.init()
+        loop = asyncio.new_event_loop()
+    
+        try:
+            loop.run_until_complete(communicate.save(self.OUTPUT_FILE_PATH))
+        except Exception as e:
+            print(f"Сетевая ошибка (игнорируем): {e}")
+        finally:
+            print("Завершаю цикл...")
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            loop.close()
 
-        pygame.mixer.music.load(self.OUTPUT_FILE_PATH)
-        pygame.mixer.music.play()
-        
-        while pygame.mixer.music.get_busy():
-            pass
-        
-        pygame.mixer.music.unload()
-        pygame.mixer.quit()
-        
-        if os.path.exists(self.OUTPUT_FILE_PATH):
-            os.remove(self.OUTPUT_FILE_PATH)
+        if os.path.exists(self.OUTPUT_FILE_PATH) and os.path.getsize(self.OUTPUT_FILE_PATH) > 0:
+            pygame.mixer.init()
+
+            pygame.mixer.music.load(self.OUTPUT_FILE_PATH)
+            pygame.mixer.music.play()
+            
+            while pygame.mixer.music.get_busy():
+                pass
+            
+            pygame.mixer.music.unload()
+            pygame.mixer.quit()
+            
+            if os.path.exists(self.OUTPUT_FILE_PATH):
+                os.remove(self.OUTPUT_FILE_PATH)
+
 
 from mutagen.mp3 import MP3
 import time

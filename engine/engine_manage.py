@@ -1,5 +1,3 @@
-from groq import Groq, AsyncGroq
-import random
 from.engines.base import BaseEngine
 
 
@@ -10,5 +8,6 @@ class EngineManager:
     def handle(self, request):
         response = self.engine.handle(request)
         print(response)
+        self.engine.quite_proccessing()
         return response
 
