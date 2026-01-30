@@ -2,19 +2,39 @@ from .base import BaseEngine
 from groq import Groq
 from .promts import DEFAULT_ASSISTENT_PROMPT
 from singleton_models.middleware import middleware_object
+from data_base.dialogs.models import Dialog
 
-
-class History:
+class History():
+    MAX_HISTORY = 10
     def __init__(self, system_prompt: str = ""):
         self.history = []
+        self.system_prompt = system_prompt
         if system_prompt is not None:
-            self.add_to_history("system", system_prompt)
+            self.add_to_history("system", system_prompt, with_db=False)
+        self.load_dialog()
+        
 
-    def add_to_history(self, role: str, content: str):
+
+    def load_dialog(self):
+        all_dialogs = list(Dialog.objects.all().order_by("-id"))[:self.MAX_HISTORY]
+        all_dialogs.reverse()
+        for dialog in all_dialogs:
+            self.add_to_history(dialog.role, dialog.content, with_db=False)
+
+
+    def add_to_history(self, role: str, content: str, with_db: bool = True):
         self.history.append({
             "role": role,
             "content": content
         })
+        if with_db:
+            Dialog.objects.create(
+                role=role,
+                content=content
+            )
+        if len(self.history) - 1 > self.MAX_HISTORY:
+            self.history.pop(1)
+        
 
 class LLMModel(BaseEngine):
     def __init__(self, api_key: str, model_name: str = "openai/gpt-oss-120b", history: History = History(DEFAULT_ASSISTENT_PROMPT)):
@@ -38,14 +58,7 @@ class GroqLLMEngine(LLMModel):
 
     def __init__(self, *args, **kawargs):
         super().__init__(*args, **kawargs)
-
-    def custom_initialize(self):
         self.client = Groq(api_key=self.api_key)
-        super().custom_initialize()
-    
-    def custom_quite(self):
-        del self.client
-        return super().custom_quite()
 
     def generate_answer(self):
         try:
@@ -60,5 +73,4 @@ class GroqLLMEngine(LLMModel):
         except Exception as e:
             print(e)
             middleware_object.start_action("on_error")
-
-            return e[:50]
+            return e

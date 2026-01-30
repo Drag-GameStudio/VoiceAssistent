@@ -1,7 +1,5 @@
-from process_control.init_control import MultiProccessActivation
 
-class BaseEngine(MultiProccessActivation):
+class BaseEngine():
     def handle(self, request):
-        self.init_preccessing()
         ...
 

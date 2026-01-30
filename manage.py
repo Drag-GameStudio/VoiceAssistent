@@ -1,5 +1,9 @@
-import ctypes
-import threading
+import os
+
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "data_base.settings")
+django.setup()
+
 from voice_activation.voice_activations_algorithms.outsider import PVAlgorithm
 from voice_activation.va_manage import VAManager
 from voice_listen.voice_listen_manage import VLManager
@@ -10,9 +14,9 @@ from voice_acting.voice_acting_manage import VActingManager
 from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm 
 from process_control.runner import run_multi_va_and_task
 from singleton_models.middleware import middleware_object
-import os
 from dotenv import load_dotenv
 load_dotenv()
+
 
 groq_api_key = os.getenv("GROQ_API_KEY")
 word_api_key = os.getenv("WORD_API_KEY")

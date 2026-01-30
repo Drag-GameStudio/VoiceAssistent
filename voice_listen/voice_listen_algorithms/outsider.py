@@ -93,6 +93,7 @@ class CloudVLA(VLABase):
                     self.send_request(text)
                     
             except Exception as e:
+                print(e)
                 middleware_object.start_action("on_error")
             finally:
                 if os.path.exists(wave_path):
