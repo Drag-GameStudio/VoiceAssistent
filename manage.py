@@ -7,7 +7,7 @@ from voice_listen.voice_listen_algorithms.outsider import CloudVLA
 from engine.engine_manage import EngineManager
 from engine.engines.llm_engine import GroqLLMEngine
 from voice_acting.voice_acting_manage import VActingManager
-from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, EdgeVActingAlgorithmCutting
+from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm 
 from process_control.runner import run_multi_va_and_task
 
 import os
@@ -30,15 +30,6 @@ class Manager:
 
 
 
-
-
-
-
-
-
-
-    
-
 def create_handler(va_manager, vacting_manager: VActingManager, e_manager: EngineManager):
     # Эта функция "видит" переменные внешней функции
     def handle_request(request: str):
@@ -48,7 +39,7 @@ def create_handler(va_manager, vacting_manager: VActingManager, e_manager: Engin
     return handle_request
 
 if __name__ == "__main__":
-    edge_alg = EdgeVActingAlgorithm()
+    edge_alg = GoogleVActingAlgorithm()
     vacting_manager = VActingManager(edge_alg)
 
     engine = GroqLLMEngine(api_key=groq_api_key)

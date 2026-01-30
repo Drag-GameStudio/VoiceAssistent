@@ -74,3 +74,36 @@ class EdgeVActingAlgorithmCutting(EdgeVActingAlgorithm):
         
         if os.path.exists(self.OUTPUT_FILE_PATH):
             os.remove(self.OUTPUT_FILE_PATH)
+
+import os
+import pygame
+from gtts import gTTS
+
+class GoogleVActingAlgorithm(BaseVActingAlgorithm):
+    OUTPUT_FILE_PATH = "voice.mp3"
+
+    def __init__(self, *args, lang: str = "ru"):
+        super().__init__(*args)
+        self.lang = lang
+
+    def acting(self, request: str):
+        try:
+            # Создаем объект TTS (использует API переводчика)
+            tts = gTTS(text=request, lang=self.lang, slow=False)
+            tts.save(self.OUTPUT_FILE_PATH)
+        except Exception as e:
+            print(f"Ошибка gTTS: {e}")
+            return
+
+        # Блок воспроизведения (ваш стандартный pygame)
+        if os.path.exists(self.OUTPUT_FILE_PATH):
+            pygame.mixer.init()
+            pygame.mixer.music.load(self.OUTPUT_FILE_PATH)
+            pygame.mixer.music.play()
+            
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
+            
+            pygame.mixer.music.unload()
+            pygame.mixer.quit()
+            os.remove(self.OUTPUT_FILE_PATH)
