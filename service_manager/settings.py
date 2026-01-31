@@ -1,5 +1,6 @@
 
 
 INSTALLED_APPS = [
-    "test_service.TestS"
+    "test_service.TestS",
+    "weather.Weather"
 ]

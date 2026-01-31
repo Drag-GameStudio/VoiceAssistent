@@ -54,17 +54,17 @@ def create_handler(va_manager, vacting_manager: VActingManager, e_manager: Engin
 
 if __name__ == "__main__":
 
-    edge_alg = VActingText()
+    edge_alg = GoogleVActingAlgorithm()
     vacting_manager = VActingManager(edge_alg)
 
     engine = GroqLLMEngine(api_key=groq_api_key)
     e_manager = EngineManager(engine)
 
-    # predict_algorithm = PVAlgorithm(word_api_key, "alexa")
-    predict_algorithm = VAText()
+    predict_algorithm = PVAlgorithm(word_api_key, "alexa")
+    # predict_algorithm = VAText()
     va_manager = VAManager(predict_algorithm)
 
-    vla = VLAText(create_handler(va_manager, vacting_manager, e_manager))
+    vla = CloudVLA(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
 
     manager = Manager(va_manager, vl_manager)    
