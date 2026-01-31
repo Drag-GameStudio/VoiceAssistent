@@ -2,6 +2,14 @@ import ctypes
 from pathos.helpers import mp as multiprocessing
 from voice_activation.va_manage import VAManager
 import psutil
+import time
+import threading
+
+from voice_activation.va_manage import VAManager
+from engine.engine_manage import EngineManager
+from voice_acting.voice_acting_manage import VActingManager
+from service_manager.runner import postprocess_service_handle
+from engine.engines.promts import DISCRIBE_ACTION
 
 def kill_child_processes(parent_pid):
     try:
@@ -35,9 +43,6 @@ def kill_thread(thread):
         ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread.ident), None)
         print("Ошибка при попытке убить поток")
 
-import time
-import threading
-
 def run_multi_va_and_task(request, va_manager: VAManager, run_func):
     task_process = threading.Thread(target=run_func, args=(request,))
     va_process = multiprocessing.Process(target=va_manager.listen_micro)
@@ -59,4 +64,19 @@ def run_multi_va_and_task(request, va_manager: VAManager, run_func):
             break
         
         time.sleep(0.1)
+
+def handler_func(request, vacting_manager: VActingManager, e_manager: EngineManager):
+    engine_result = e_manager.handle(request)
+    is_command, result = postprocess_service_handle(engine_result)
+    if is_command:
+        prompt = f"{DISCRIBE_ACTION} \n{result}"
+        result = e_manager.handle(prompt)
     
+    vacting_manager.acting(result)
+
+
+def create_handler(va_manager, vacting_manager: VActingManager, e_manager: EngineManager):
+    def handle_request(request: str):
+        return run_multi_va_and_task(request, va_manager, lambda request: handler_func(request, vacting_manager, e_manager))
+    
+    return handle_request
