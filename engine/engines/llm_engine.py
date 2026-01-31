@@ -3,6 +3,12 @@ from groq import Groq
 from .promts import DEFAULT_ASSISTENT_PROMPT
 from singleton_models.middleware import middleware_object
 from data_base.dialogs.models import Dialog
+from service_manager.initialization import get_prompt_for_modules
+
+base_prompt = f"""
+    {DEFAULT_ASSISTENT_PROMPT} \n
+    {get_prompt_for_modules()}
+"""
 
 class History():
     MAX_HISTORY = 10
@@ -37,12 +43,14 @@ class History():
         
 
 class LLMModel(BaseEngine):
-    def __init__(self, api_key: str, model_name: str = "openai/gpt-oss-120b", history: History = History(DEFAULT_ASSISTENT_PROMPT)):
+    def __init__(self, api_key: str, 
+                 model_name: str = "openai/gpt-oss-120b", 
+                 history: History = History(base_prompt),
+                 ):
         super().__init__()
         self.history = history
         self.api_key = api_key
         self.model_name = model_name
-
     
     def generate_answer(self) -> str:
         return "answer"

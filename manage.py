@@ -16,7 +16,8 @@ from engine.engines.llm_engine import GroqLLMEngine
 from voice_acting.voice_acting_manage import VActingManager
 from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm 
 from voice_acting.voice_acting_algorithms.text import VActingText
-
+from service_manager.runner import postprocess_service_handle
+from engine.engines.promts import DISCRIBE_ACTION
 from process_control.runner import run_multi_va_and_task
 from singleton_models.middleware import middleware_object
 from dotenv import load_dotenv
@@ -36,10 +37,18 @@ class Manager:
             self.va_manager.listen_micro(multi_worker=False)
             self.vl_manager.listen_micro()
 
+def handler_func(request, vacting_manager: VActingManager, e_manager: EngineManager):
+    engine_result = e_manager.handle(request)
+    is_command, result = postprocess_service_handle(engine_result)
+    if is_command:
+        prompt = f"{DISCRIBE_ACTION} \n{result}"
+        result = e_manager.handle(prompt)
+    
+    vacting_manager.acting(result)
+
 def create_handler(va_manager, vacting_manager: VActingManager, e_manager: EngineManager):
     def handle_request(request: str):
-        print(request)
-        return run_multi_va_and_task(request, va_manager, lambda request: vacting_manager.acting(e_manager.handle(request)))
+        return run_multi_va_and_task(request, va_manager, lambda request: handler_func(request, vacting_manager, e_manager))
     
     return handle_request
 
