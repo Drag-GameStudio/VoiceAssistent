@@ -1,8 +1,10 @@
 from .base import BaseEngine
 from groq import Groq
-from .promts import DEFAULT_ASSISTENT_PROMPT
+from .promts import DEFAULT_ASSISTENT_PROMPT, general_prompt_create, DONATIK_ID
 from singleton_models.middleware import middleware_object
 from data_base.dialogs.models import Dialog
+
+
 
 class History():
     MAX_HISTORY = 10
@@ -37,12 +39,14 @@ class History():
         
 
 class LLMModel(BaseEngine):
-    def __init__(self, api_key: str, model_name: str = "openai/gpt-oss-120b", history: History = History(DEFAULT_ASSISTENT_PROMPT)):
+    def __init__(self, api_key: str, 
+                 model_name: str = "openai/gpt-oss-120b", 
+                 history: History = History(general_prompt_create("ru", DONATIK_ID)),
+                 ):
         super().__init__()
         self.history = history
         self.api_key = api_key
         self.model_name = model_name
-
     
     def generate_answer(self) -> str:
         return "answer"

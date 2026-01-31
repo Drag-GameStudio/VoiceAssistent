@@ -7,6 +7,5 @@ class EngineManager:
 
     def handle(self, request):
         response = self.engine.handle(request)
-        print(response)
         return response
 
