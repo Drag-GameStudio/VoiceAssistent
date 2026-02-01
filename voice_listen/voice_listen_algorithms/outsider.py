@@ -44,6 +44,7 @@ class VoskVLA(VLABase):
 import speech_recognition as sr
 import os
 import tempfile
+import time
 
 class CloudVLA(VLABase):
     def __init__(self, *args, lang="ru", timeout: float = 5):
@@ -71,35 +72,40 @@ class CloudVLA(VLABase):
         self.recognizer.operation_timeout = self.timeout
         self.prep()
 
-        with self.source as source:
-            while True:
-                try:
+        while True:
+            try:
+
+                with self.source as source:
                     audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
-                except sr.WaitTimeoutError:
-                    print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
-                    break
+            except sr.WaitTimeoutError:
+                print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
+                break
 
-                self.end_listen()
+            self.end_listen()
 
-                with open(wave_path, "wb") as f:
-                    f.write(audio_data.get_wav_data())
+            with open(wave_path, "wb") as f:
+                f.write(audio_data.get_wav_data())
 
-                print("Обработка...")
+            print("Обработка...")
+            
+            try:
+                with sr.AudioFile(wave_path) as source_file:
+                    audio_to_send = self.recognizer.record(source_file)
+                    text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
                 
-                try:
-                    with sr.AudioFile(wave_path) as source_file:
-                        audio_to_send = self.recognizer.record(source_file)
-                        text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
+                if text:
+                    time.sleep(0.2)
+                    self.send_request(text)
+                    time.sleep(0.5)
+
+
                     
-                    if text:
-                        self.send_request(text)
-                        
-                except Exception as e:
-                    print(e)
-                    middleware_object.start_action("on_error")
-                finally:
-                    if os.path.exists(wave_path):
-                        try:
-                            os.remove(wave_path)
-                        except PermissionError:
-                            print("Не удалось удалить временный файл, он еще занят.")
+            except Exception as e:
+                print(e)
+                middleware_object.start_action("on_error")
+            finally:
+                if os.path.exists(wave_path):
+                    try:
+                        os.remove(wave_path)
+                    except PermissionError:
+                        print("Не удалось удалить временный файл, он еще занят.")
