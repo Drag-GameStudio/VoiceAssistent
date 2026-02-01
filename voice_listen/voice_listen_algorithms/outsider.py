@@ -73,13 +73,25 @@ class CloudVLA(VLABase):
         self.recognizer.energy_threshold = 130
         self.recognizer.operation_timeout = self.timeout
         self.prep()
+        is_silent = False
+
 
         while True:
-            try:
-                with self.source as source:
-                    audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
-            except sr.WaitTimeoutError:
-                print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
+            while True:
+                try:
+                    with self.source as source:
+                        audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
+                    break
+
+                except sr.WaitTimeoutError:
+                    print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
+                    is_silent = True
+                    break
+                    
+                except:
+                    print("cant open mic")
+                    time.sleep(0.5)
+            if is_silent:
                 break
 
             self.end_listen()
@@ -97,7 +109,6 @@ class CloudVLA(VLABase):
                 if text:
                     time.sleep(0.2)
                     self.send_request(text)
-                    time.sleep(0.8)
 
 
                     
