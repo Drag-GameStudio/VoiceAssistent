@@ -4,6 +4,8 @@ import json
 from .base import VLABase
 import os
 from singleton_models.middleware import middleware_object
+from singleton_models.py_audio_singleton import PyAudioManager
+
 
 
 class VoskVLA(VLABase):
@@ -44,6 +46,7 @@ class VoskVLA(VLABase):
 import speech_recognition as sr
 import os
 import tempfile
+import time
 
 class CloudVLA(VLABase):
     def __init__(self, *args, lang="ru", timeout: float = 5):
@@ -51,13 +54,14 @@ class CloudVLA(VLABase):
         self.recognizer = sr.Recognizer()
         self.lang = "ru-RU" if lang == "ru" else "en-US"
         self.timeout = timeout
-
-        self.mic_index = 1 if os.name != 'nt' else None 
-        self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
-        with self.source as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=1)
+        self.source = None
+        self.mic_index = PyAudioManager().get_index()
+        
         print("READY")
 
+    def prep(self):
+        if self.source is None:
+            self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
         
     def listen_micro(self):
         tmp_dir = tempfile.gettempdir()
@@ -68,14 +72,18 @@ class CloudVLA(VLABase):
         self.recognizer.non_speaking_duration = 1.0
         self.recognizer.energy_threshold = 130
         self.recognizer.operation_timeout = self.timeout
+        self.prep()
 
         while True:
             try:
+                PyAudioManager().stop_stream()
                 with self.source as source:
                     audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
+
             except sr.WaitTimeoutError:
                 print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
                 break
+                    
 
             self.end_listen()
 
@@ -90,7 +98,10 @@ class CloudVLA(VLABase):
                     text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
                 
                 if text:
+                    time.sleep(0.2)
                     self.send_request(text)
+
+
                     
             except Exception as e:
                 print(e)

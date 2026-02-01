@@ -35,31 +35,42 @@ class Manager:
 
     def start(self):
         while True:
-            # self.va_manager.listen_micro(multi_worker=False)
+            self.va_manager.listen_micro(multi_worker=False)
             self.vl_manager.listen_micro()
 
 
+import threading
+import subprocess
+
+import pygame
+def start_keep_alive():
+    import pygame
+
+    pygame.mixer.init()
+
+    silence = pygame.mixer.Sound(buffer=b'\x00' * 1024)
+    silence.play(loops=-1)
 
 if __name__ == "__main__":
-
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
 
+    threading.Thread(target=start_keep_alive).start()
 
     bot_settings = general_prompt_create("ru", DONATIK_ID)
     engine = GroqLLMEngine(api_key=groq_api_key, history=History(bot_settings))
     e_manager = EngineManager(engine)
 
-     # predict_algorithm = PVAlgorithm(word_api_key, "alexa")
-    predict_algorithm = VAText()
+    predict_algorithm = PVAlgorithm(word_api_key, "alexa")
+    # predict_algorithm = VAText()
     va_manager = VAManager(predict_algorithm)
 
-    # edge_alg = GoogleVActingAlgorithm()
-    edge_alg = VActingText()
+    edge_alg = GoogleVActingAlgorithm()
+    # edge_alg = VActingText()
     vacting_manager = VActingManager(edge_alg)
     
 
-    vla = VLAText(create_handler(va_manager, vacting_manager, e_manager))
+    vla = CloudVLA(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
 
     manager = Manager(va_manager, vl_manager)    

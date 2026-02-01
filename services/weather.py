@@ -25,5 +25,5 @@ class Weather(BaseService):
         return """
             This module get weather info
             not requare key argument:
-            city_name - name have to be in english
+            city_name - name have to be in english if you have name in another languange, just translate
         """

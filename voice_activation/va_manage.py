@@ -1,4 +1,3 @@
-import pyaudio
 import numpy as np
 from .voice_activations_algorithms.base import BaseVAAlgorithm
 from singleton_models.py_audio_singleton import PyAudioManager
@@ -8,7 +7,6 @@ from singleton_models.middleware import middleware_object
 import os
 import signal
 import time
-import multiprocessing
 
 class VAManager:
 
@@ -17,10 +15,12 @@ class VAManager:
 
     def listen_micro(self, multi_worker: bool = True):
         print("Listening...")
-        stream = PyAudioManager().py_audio.open(format=self.predict_algorithm.FORMAT,
+        pam = PyAudioManager()
+        stream = pam.start_stream(format=self.predict_algorithm.FORMAT,
                                                       channels=self.predict_algorithm.CHANNELS, 
                                                       rate=48000, 
                                                       input=True, 
+                                                      input_device_index=pam.get_index(),
                                                       frames_per_buffer=self.predict_algorithm.CHUNK)
 
         self.state = None
@@ -33,10 +33,9 @@ class VAManager:
                 middleware_object.start_action("activate_by_word")
                 break
 
-        stream.stop_stream()
-        stream.close()
+        pam.stop_stream()
         self.predict_algorithm.quite_proccessing()
 
         time.sleep(0.3)
         if multi_worker:
-            os.kill(os.getpid(), signal.SIGTERM)
+            os.kill(os.getpid(), signal.SIGKILL)

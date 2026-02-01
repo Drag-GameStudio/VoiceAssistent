@@ -10,6 +10,7 @@ from gtts import gTTS
 from pathos.helpers import mp as multiprocessing
 from sounds.sound_control import PlayAudioManager
 from singleton_models.middleware import middleware_object
+from process_control.runner import kill_thread
 
 
 class EdgeVActingAlgorithm(BaseVActingAlgorithm):
@@ -72,7 +73,7 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
     def play_sound_by_id(self, id):
         file_path = self.get_voice_path(id)
         if os.path.exists(file_path):
-            sound_process = PlayAudioManager().play_sound(file_path, is_thread=False, with_daemon=True)
+            PlayAudioManager().play_sound(file_path, is_thread=False)
             os.remove(file_path)
             return True
         return False
@@ -85,11 +86,8 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
         for worker in gen_voice_workers:
             worker.start()
 
-        try:
-            for i, worker in enumerate(gen_voice_workers):
-                worker.join()
-                self.play_sound_by_id(i)
-        finally:
-            pygame.mixer.quit()
+        for i, worker in enumerate(gen_voice_workers):
+            worker.join()
+            self.play_sound_by_id(i)
 
         

@@ -10,6 +10,7 @@ from engine.engine_manage import EngineManager
 from voice_acting.voice_acting_manage import VActingManager
 from service_manager.runner import postprocess_service_handle
 from engine.engines.promts import DISCRIBE_ACTION
+from singleton_models.middleware import middleware_object
 
 def kill_child_processes(parent_pid):
     try:
@@ -51,19 +52,19 @@ def run_multi_va_and_task(request, va_manager: VAManager, run_func):
 
     while True:
         if not task_process.is_alive():
-            print("Задача (task_thread) завершена. Останавливаю микрофон...")
-            va_process.terminate()  # Жёстко убиваем процесс микрофона
+            va_process.terminate() 
             break
         
         if not va_process.is_alive():
-            print("Микрофон перестал слушать сам.")
-            # task_process.terminate()
-            # kill_child_processes(task_process.pid)
             kill_thread(task_process)
 
             break
         
         time.sleep(0.1)
+
+    middleware_object.start_action("end_task")
+
+    
 
 def handler_func(request, vacting_manager: VActingManager, e_manager: EngineManager):
     engine_result = e_manager.handle(request)

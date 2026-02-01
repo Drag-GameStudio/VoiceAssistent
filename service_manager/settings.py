@@ -1,6 +1,7 @@
 
 
 INSTALLED_APPS = [
-    "test_service.TestS",
-    "weather.Weather"
+    "weather.Weather",
+    "auto_search.AutoSearch"
+    # "auto_create.Auto"
 ]

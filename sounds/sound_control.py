@@ -4,6 +4,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import time
 import threading
+import subprocess
 
 class PlayAudioManager:
     BASE_SS_FOLDER = os.path.abspath("sounds/source")
@@ -20,16 +21,18 @@ class PlayAudioManager:
 
     def play_sound_process(self, file_path: str):
         if not pygame.mixer.get_init():
-            pygame.mixer.pre_init(44100, -16, 2, 2048)
+            pygame.mixer.pre_init(48000, -16, 2, 1024)
             pygame.mixer.init()
 
-        pygame.mixer.music.load(file_path)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            time.sleep(0.1)
+        sound = pygame.mixer.Sound(file_path)
+        try:
+            channel = sound.play()
+            while channel.get_busy():
+                time.sleep(0.1)
+        finally:
+            channel.stop()
 
-        pygame.mixer.music.unload()
-        pygame.mixer.quit()
+
 
     def play_sound(self, sound_name: str, is_thread=True, with_daemon=False):
         file_path = self.get_file_path(sound_name)
