@@ -15,7 +15,9 @@ class Middleware:
         self.play_sound_manager.play_sound(r"sstext_apply.mp3")
 
     def activate_by_word(self):
-        self.play_sound_manager.play_sound(r"ssword_activate.mp3")
+        # self.play_sound_manager.play_sound(r"ssword_activate.mp3")
+        self.play_sound_manager.play_sound(r"ssstop.mp3")
+
 
     def stop_listening(self):
         self.play_sound_manager.play_sound(r"ssstop.mp3")
