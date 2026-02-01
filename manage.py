@@ -39,12 +39,22 @@ class Manager:
             self.vl_manager.listen_micro()
 
 
+import threading
+import subprocess
+
+
+def start_keep_alive():
+    return subprocess.Popen(
+        ["speaker-test", "-t", "sine", "-f", "1", "-l", "0"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
 
 if __name__ == "__main__":
-    
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
 
+    threading.Thread(target=start_keep_alive).start()
 
     bot_settings = general_prompt_create("ru", DONATIK_ID)
     engine = GroqLLMEngine(api_key=groq_api_key, history=History(bot_settings))
