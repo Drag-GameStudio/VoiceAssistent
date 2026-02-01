@@ -25,9 +25,13 @@ class PlayAudioManager:
             pygame.mixer.init()
 
         sound = pygame.mixer.Sound(file_path)
-        channel = sound.play()
-        while channel.get_busy():
-            time.sleep(0.1)
+        try:
+            channel = sound.play()
+            while channel.get_busy():
+                time.sleep(0.1)
+        finally:
+            print("STOP_SOUND")
+            channel.stop()
 
 
 
