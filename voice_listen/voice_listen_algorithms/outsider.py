@@ -51,9 +51,9 @@ class CloudVLA(VLABase):
         self.recognizer = sr.Recognizer()
         self.lang = "ru-RU" if lang == "ru" else "en-US"
         self.timeout = timeout
-
+        self.source = None
         self.mic_index = 1 if os.name != 'nt' else None 
-        self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
+        self.prep()
         try:
             with self.source as source:
                 self.recognizer.adjust_for_ambient_noise(source, duration=1)
@@ -61,6 +61,9 @@ class CloudVLA(VLABase):
             print("CANT HEAR")
         print("READY")
 
+    def prep(self):
+        if self.source is None:
+            self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
         
     def listen_micro(self):
         tmp_dir = tempfile.gettempdir()
@@ -74,6 +77,8 @@ class CloudVLA(VLABase):
 
         while True:
             try:
+                self.prep()
+
                 with self.source as source:
                     audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
             except sr.WaitTimeoutError:
