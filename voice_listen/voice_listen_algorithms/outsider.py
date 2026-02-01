@@ -53,12 +53,7 @@ class CloudVLA(VLABase):
         self.timeout = timeout
         self.source = None
         self.mic_index = 1 if os.name != 'nt' else None 
-        self.prep()
-        try:
-            with self.source as source:
-                self.recognizer.adjust_for_ambient_noise(source, duration=1)
-        except:
-            print("CANT HEAR")
+        
         print("READY")
 
     def prep(self):
