@@ -1,5 +1,5 @@
 import pyaudio
-
+import time
 
 class PyAudioManager:
     _instance = None
@@ -17,6 +17,8 @@ class PyAudioManager:
     def stop_stream(self):
         if self.stream is not None:
             self.stream.stop_stream()
+            while self.stream.is_active():
+                time.sleep(0.02)
             self.stream.close()
 
     def get_index(self):
