@@ -54,8 +54,11 @@ class CloudVLA(VLABase):
 
         self.mic_index = 1 if os.name != 'nt' else None 
         self.source = sr.Microphone(device_index=self.mic_index, sample_rate=48000)
-        with self.source as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=1)
+        try:
+            with self.source as source:
+                self.recognizer.adjust_for_ambient_noise(source, duration=1)
+        except:
+            print("CANT HEAR")
         print("READY")
 
         

@@ -21,6 +21,7 @@ class VAManager:
                                                       channels=self.predict_algorithm.CHANNELS, 
                                                       rate=48000, 
                                                       input=True, 
+                                                      input_device_index=1,
                                                       frames_per_buffer=self.predict_algorithm.CHUNK)
 
         self.state = None
