@@ -52,14 +52,10 @@ def run_multi_va_and_task(request, va_manager: VAManager, run_func):
 
     while True:
         if not task_process.is_alive():
-            print("Задача (task_thread) завершена. Останавливаю микрофон...")
-            va_process.terminate()  # Жёстко убиваем процесс микрофона
+            va_process.terminate() 
             break
         
         if not va_process.is_alive():
-            print("Микрофон перестал слушать сам.")
-            # task_process.terminate()
-            # kill_child_processes(task_process.pid)
             kill_thread(task_process)
 
             break

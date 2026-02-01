@@ -14,15 +14,12 @@ class PyAudioManager:
         try:
             device_count = p.get_device_count()
         except Exception:
-            return 0 # Если даже это упало, пробуем дефолт
+            return 0 
         
         for i in range(device_count):
             try:
                 device_info = p.get_device_info_by_index(i)
-                # Если нашли устройство со входом — возвращаем индекс сразу
                 if device_info.get('maxInputChannels') > 0:
-                    # ВАЖНО: Никаких p.terminate() здесь! 
-                    # Нам нужен живой объект для записи.
                     return i
             except Exception:
                 continue

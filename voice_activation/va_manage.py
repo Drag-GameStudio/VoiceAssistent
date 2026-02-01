@@ -1,4 +1,3 @@
-import pyaudio
 import numpy as np
 from .voice_activations_algorithms.base import BaseVAAlgorithm
 from singleton_models.py_audio_singleton import PyAudioManager
@@ -8,7 +7,6 @@ from singleton_models.middleware import middleware_object
 import os
 import signal
 import time
-import multiprocessing
 
 class VAManager:
 
@@ -38,9 +36,7 @@ class VAManager:
         stream.stop_stream()
         stream.close()
         self.predict_algorithm.quite_proccessing()
-        print("SECOND")
 
         time.sleep(0.3)
         if multi_worker:
-            print("THIRDF")
             os.kill(os.getpid(), signal.SIGKILL)
