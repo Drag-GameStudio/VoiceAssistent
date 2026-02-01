@@ -41,7 +41,10 @@ class Manager:
 
 
 if __name__ == "__main__":
-
+    middleware_object.start_action("start_action")
+    middleware_object.start_action("start_action")
+    middleware_object.start_action("start_action")
+    middleware_object.start_action("start_action")
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
 
