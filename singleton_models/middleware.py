@@ -26,8 +26,8 @@ class Middleware:
 
     def start_action(self, action_name):
         try:
-            # use_func = getattr(self, action_name)
-            # use_func()
+            use_func = getattr(self, action_name)
+            use_func()
             ...
 
         except:

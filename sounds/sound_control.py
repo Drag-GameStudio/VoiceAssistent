@@ -29,7 +29,6 @@ class PlayAudioManager:
             time.sleep(0.1)
 
         pygame.mixer.music.unload()
-        pygame.mixer.quit()
 
     def play_sound(self, sound_name: str, is_thread=True, with_daemon=False):
         file_path = self.get_file_path(sound_name)
