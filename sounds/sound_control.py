@@ -22,7 +22,7 @@ class PlayAudioManager:
     def play_sound_process(self, file_path: str):
         os.environ['SDL_AUDIODRIVER'] = 'pulseaudio'
         if not pygame.mixer.get_init():
-            pygame.mixer.pre_init(44100, -16, 2, 512)
+            pygame.mixer.pre_init(48000, -16, 2, 1024)
             pygame.mixer.init()
 
         sound = pygame.mixer.Sound(file_path)
