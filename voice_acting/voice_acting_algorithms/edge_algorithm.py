@@ -85,11 +85,9 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
         for worker in gen_voice_workers:
             worker.start()
 
-        try:
-            for i, worker in enumerate(gen_voice_workers):
-                worker.join()
-                self.play_sound_by_id(i)
-        finally:
-            pygame.mixer.quit()
+        for i, worker in enumerate(gen_voice_workers):
+            worker.join()
+            self.play_sound_by_id(i)
+        
 
         
