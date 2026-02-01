@@ -100,7 +100,6 @@ class CloudVLA(VLABase):
                 if text:
                     time.sleep(0.2)
                     self.send_request(text)
-                    time.sleep(0.8)
 
 
                     
