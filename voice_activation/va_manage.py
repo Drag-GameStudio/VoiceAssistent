@@ -41,4 +41,4 @@ class VAManager:
         time.sleep(0.3)
         if multi_worker:
             print("THIRDF")
-            os.kill(os.getpid(), signal.SIGTERM)
+            os.kill(os.getpid(), signal.SIGKILL)
