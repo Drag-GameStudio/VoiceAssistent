@@ -4,5 +4,5 @@ import time
 class VAText(BaseVAAlgorithm):
     def predict(self, audio_frame):
         # text = input("Enter activate: ")
-        time.sleep(50)
-        return True
+        
+        return False
