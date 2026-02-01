@@ -16,7 +16,7 @@ class VAManager:
     def listen_micro(self, multi_worker: bool = True):
         print("Listening...")
         pam = PyAudioManager()
-        stream = pam.py_audio.open(format=self.predict_algorithm.FORMAT,
+        stream = pam.start_stream(format=self.predict_algorithm.FORMAT,
                                                       channels=self.predict_algorithm.CHANNELS, 
                                                       rate=48000, 
                                                       input=True, 
@@ -33,8 +33,7 @@ class VAManager:
                 middleware_object.start_action("activate_by_word")
                 break
 
-        stream.stop_stream()
-        stream.close()
+        pam.stop_stream()
         self.predict_algorithm.quite_proccessing()
 
         time.sleep(0.3)

@@ -3,12 +3,22 @@ import pyaudio
 
 class PyAudioManager:
     _instance = None
+    stream = None
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls.py_audio = pyaudio.PyAudio()
         return cls._instance
     
+    def start_stream(self, *args, **kwargs):
+        self.stream = self.py_audio.open(*args, **kwargs)
+        return self.stream
+
+    def stop_stream(self):
+        if self.stream is not None:
+            self.stream.stop_stream()
+            self.stream.close()
+
     def get_index(self):
         p = self.py_audio
         try:
