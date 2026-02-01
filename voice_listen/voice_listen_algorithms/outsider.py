@@ -69,38 +69,37 @@ class CloudVLA(VLABase):
         self.recognizer.non_speaking_duration = 1.0
         self.recognizer.energy_threshold = 130
         self.recognizer.operation_timeout = self.timeout
+        self.prep()
 
-        while True:
-            try:
-                self.prep()
-
-                with self.source as source:
+        with self.source as source:
+            while True:
+                try:
                     audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
-            except sr.WaitTimeoutError:
-                print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
-                break
+                except sr.WaitTimeoutError:
+                    print("Вы молчали слишком долго (5 секунд). Выключаю микрофон.")
+                    break
 
-            self.end_listen()
+                self.end_listen()
 
-            with open(wave_path, "wb") as f:
-                f.write(audio_data.get_wav_data())
+                with open(wave_path, "wb") as f:
+                    f.write(audio_data.get_wav_data())
 
-            print("Обработка...")
-            
-            try:
-                with sr.AudioFile(wave_path) as source_file:
-                    audio_to_send = self.recognizer.record(source_file)
-                    text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
+                print("Обработка...")
                 
-                if text:
-                    self.send_request(text)
+                try:
+                    with sr.AudioFile(wave_path) as source_file:
+                        audio_to_send = self.recognizer.record(source_file)
+                        text = self.recognizer.recognize_google(audio_to_send, language=self.lang)
                     
-            except Exception as e:
-                print(e)
-                middleware_object.start_action("on_error")
-            finally:
-                if os.path.exists(wave_path):
-                    try:
-                        os.remove(wave_path)
-                    except PermissionError:
-                        print("Не удалось удалить временный файл, он еще занят.")
+                    if text:
+                        self.send_request(text)
+                        
+                except Exception as e:
+                    print(e)
+                    middleware_object.start_action("on_error")
+                finally:
+                    if os.path.exists(wave_path):
+                        try:
+                            os.remove(wave_path)
+                        except PermissionError:
+                            print("Не удалось удалить временный файл, он еще занят.")
