@@ -13,7 +13,7 @@ def get_cls_module(service_name: str) -> type[BaseService]:
 def run_service(service_name: str, kwargs: dict):
     cls = get_cls_module(service_name)    
     cls_object = cls()
-    return cls_object.handle(**kwargs)
+    return cls_object.global_handle(**kwargs)
 
 def postprocess_service_handle(raw_result) -> tuple[bool, str]:
     status, result = check_raw_answer(raw_result)
