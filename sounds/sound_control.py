@@ -23,12 +23,11 @@ class PlayAudioManager:
             pygame.mixer.pre_init(44100, -16, 2, 2048)
             pygame.mixer.init()
 
-        pygame.mixer.music.load(file_path)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            time.sleep(0.1)
+        sound = pygame.mixer.Sound(file_path)
+        channel = sound.play()
+        while channel.get_busy():
+                time.sleep(0.1)
 
-        pygame.mixer.music.unload()
 
     def play_sound(self, sound_name: str, is_thread=True, with_daemon=False):
         file_path = self.get_file_path(sound_name)
