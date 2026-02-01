@@ -30,14 +30,12 @@ class PlayAudioManager:
             while channel.get_busy():
                 time.sleep(0.1)
         finally:
-            print("STOP_SOUND")
             channel.stop()
 
 
 
     def play_sound(self, sound_name: str, is_thread=True, with_daemon=False):
         file_path = self.get_file_path(sound_name)
-        print("sound play", sound_name)
         if is_thread:
             sound_process = threading.Thread(target=self.play_sound_process, args=(file_path,))
             sound_process.daemon = with_daemon

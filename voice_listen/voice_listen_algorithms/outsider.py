@@ -4,6 +4,8 @@ import json
 from .base import VLABase
 import os
 from singleton_models.middleware import middleware_object
+from singleton_models.py_audio_singleton import PyAudioManager
+
 
 
 class VoskVLA(VLABase):
@@ -53,7 +55,7 @@ class CloudVLA(VLABase):
         self.lang = "ru-RU" if lang == "ru" else "en-US"
         self.timeout = timeout
         self.source = None
-        self.mic_index = 1 if os.name != 'nt' else None 
+        self.mic_index = PyAudioManager().get_index()
         
         print("READY")
 
