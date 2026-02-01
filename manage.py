@@ -42,13 +42,14 @@ class Manager:
 import threading
 import subprocess
 
-
+import pygame
 def start_keep_alive():
-    return subprocess.Popen(
-        ["speaker-test", "-t", "sine", "-f", "1", "-l", "0"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
-    )
+    import pygame
+
+    pygame.mixer.init()
+
+    silence = pygame.mixer.Sound(buffer=b'\x00' * 1024)
+    silence.play(loops=-1)
 
 if __name__ == "__main__":
     groq_api_key = os.getenv("GROQ_API_KEY")
