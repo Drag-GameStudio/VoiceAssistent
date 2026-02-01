@@ -74,7 +74,6 @@ class CloudVLA(VLABase):
 
         while True:
             try:
-
                 with self.source as source:
                     audio_data = self.recognizer.listen(source, timeout=self.timeout, phrase_time_limit=None)
             except sr.WaitTimeoutError:
