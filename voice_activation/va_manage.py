@@ -36,7 +36,9 @@ class VAManager:
         stream.stop_stream()
         stream.close()
         self.predict_algorithm.quite_proccessing()
+        print("SECOND")
 
         time.sleep(0.3)
         if multi_worker:
+            print("THIRDF")
             os.kill(os.getpid(), signal.SIGTERM)
