@@ -20,6 +20,7 @@ class PyAudioManager:
             while self.stream.is_active():
                 time.sleep(0.02)
             self.stream.close()
+            self.stream = None
 
     def get_index(self):
         p = self.py_audio
