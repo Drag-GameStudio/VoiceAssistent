@@ -15,12 +15,15 @@ class PyAudioManager:
         num_devices = info.get('deviceCount')
         
         for i in range(0, num_devices):
-            device_info = p.get_device_info_by_index(i)
-            # Проверяем, что у устройства есть входные каналы (это микрофон)
-            if device_info.get('maxInputChannels') > 0:
-                print(f"Найдено подходящее устройство: {device_info.get('name')} (Индекс: {i})")
-                p.terminate()
-                return i
+            try:
+                device_info = p.get_device_info_by_index(i)
+                # Проверяем, что у устройства есть входные каналы (это микрофон)
+                if device_info.get('maxInputChannels') > 0:
+                    print(f"Найдено подходящее устройство: {device_info.get('name')} (Индекс: {i})")
+                    p.terminate()
+                    return i
+            except:
+                pass
                 
         p.terminate()
         return None
