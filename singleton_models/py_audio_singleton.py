@@ -11,19 +11,20 @@ class PyAudioManager:
     
     def get_index(self):
         p = self.py_audio
-        info = p.get_host_api_info_by_index(0)
-        num_devices = info.get('deviceCount')
+        try:
+            device_count = p.get_device_count()
+        except Exception:
+            return 0 # Если даже это упало, пробуем дефолт
         
-        for i in range(0, num_devices):
+        for i in range(device_count):
             try:
                 device_info = p.get_device_info_by_index(i)
-                # Проверяем, что у устройства есть входные каналы (это микрофон)
+                # Если нашли устройство со входом — возвращаем индекс сразу
                 if device_info.get('maxInputChannels') > 0:
-                    print(f"Найдено подходящее устройство: {device_info.get('name')} (Индекс: {i})")
-                    p.terminate()
+                    # ВАЖНО: Никаких p.terminate() здесь! 
+                    # Нам нужен живой объект для записи.
                     return i
-            except:
-                pass
-                
-        p.terminate()
-        return None
+            except Exception:
+                continue
+            
+        return 0
