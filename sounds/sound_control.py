@@ -20,7 +20,7 @@ class PlayAudioManager:
 
     def play_sound_process(self, file_path: str):
         if not pygame.mixer.get_init():
-            pygame.mixer.pre_init(44100, -16, 2, 2048)
+            pygame.mixer.pre_init(44100, -16, 2, 512)
             pygame.mixer.init()
 
         sound = pygame.mixer.Sound(file_path)
