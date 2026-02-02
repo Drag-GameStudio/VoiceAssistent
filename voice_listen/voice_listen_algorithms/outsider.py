@@ -209,9 +209,10 @@ class CloudVLAPyAudio(VLABase):
             prev_audio.append(data)
             if len(prev_audio) > int(rel * 0.5):
                 prev_audio.pop(0)
+        self.end_listen()
         
         raw_data = b''.join(audio2send)
-    
+
         recognizer = sr.Recognizer()
         audio_source = sr.AudioData(raw_data, RATE, 2)
         
@@ -245,7 +246,6 @@ class CloudVLAPyAudio(VLABase):
 
         while True:
             result = self.recognize_text()
-            print(result)
             if result["success"] == False or result["text"] is None or result["text"] == "":
                 break
             
