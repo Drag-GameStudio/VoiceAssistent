@@ -47,7 +47,7 @@ import subprocess
 import pygame
 def start_keep_alive():
     import pygame
-
+    pygame.mixer.pre_init(48000, -16, 1, 2560)
     pygame.mixer.init()
 
     silence = pygame.mixer.Sound(buffer=b'\x00' * 1024)
