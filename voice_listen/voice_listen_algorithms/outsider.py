@@ -243,4 +243,6 @@ class CloudVLAPyAudio(VLABase):
                 break
             
             self.send_request(result["text"])
+        
+        self.pam.stop_stream()
             
