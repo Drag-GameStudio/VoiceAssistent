@@ -245,6 +245,7 @@ class CloudVLAPyAudio(VLABase):
 
         while True:
             result = self.recognize_text()
+            print(result)
             if result["success"] == False or result["text"] is None or result["text"] == "":
                 break
             
