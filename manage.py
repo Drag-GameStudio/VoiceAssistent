@@ -9,7 +9,7 @@ from voice_activation.voice_activations_algorithms.text import VAText
 from voice_activation.va_manage import VAManager
 
 from voice_listen.voice_listen_manage import VLManager
-from voice_listen.voice_listen_algorithms.outsider import CloudVLA, VoskVLA
+from voice_listen.voice_listen_algorithms.outsider import CloudVLA, VoskVLA, CloudVLAPyAudio
 from voice_listen.voice_listen_algorithms.text import VLAText
 
 from engine.engine_manage import EngineManager
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     vacting_manager = VActingManager(edge_alg)
     
 
-    vla = CloudVLA(create_handler(va_manager, vacting_manager, e_manager))
+    vla = CloudVLAPyAudio(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
 
     manager = Manager(va_manager, vl_manager)    

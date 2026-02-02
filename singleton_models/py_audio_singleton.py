@@ -11,6 +11,9 @@ class PyAudioManager:
         return cls._instance
     
     def start_stream(self, *args, **kwargs):
+        if self.stream is not None:
+            return self.stream
+
         self.stream = self.py_audio.open(*args, **kwargs)
         return self.stream
 
@@ -21,6 +24,19 @@ class PyAudioManager:
                 time.sleep(0.02)
             self.stream.close()
             self.stream = None
+
+    def get_current_stream_info(self):
+        if self.stream is None:
+            return None
+
+        info = {
+            "format": self.stream._format,              
+            "channels": self.stream._channels,          
+            "rate": int(self.stream._rate),             
+            "frames_per_buffer": self.stream._frames_per_buffer,
+        }
+
+        return info
 
     def get_index(self):
         p = self.py_audio
