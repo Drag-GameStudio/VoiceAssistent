@@ -35,7 +35,7 @@ class VAManager:
                 break
 
         self.predict_algorithm.quite_proccessing()
-
+        pam.stop_stream()
         time.sleep(0.3)
         if multi_worker:
             current_os = platform.system()
