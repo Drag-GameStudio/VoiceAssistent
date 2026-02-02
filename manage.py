@@ -19,6 +19,8 @@ from voice_acting.voice_acting_manage import VActingManager
 from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm
 from voice_acting.voice_acting_algorithms.text import VActingText
 
+from singleton_models.py_audio_singleton import PyAudioManager
+
 from engine.engines.promts import general_prompt_create, DONATIK_ID
 from singleton_models.middleware import middleware_object
 from process_control.runner import create_handler
@@ -50,8 +52,20 @@ def start_keep_alive():
 
     silence = pygame.mixer.Sound(buffer=b'\x00' * 1024)
     silence.play(loops=-1)
+import pyaudio
 
 if __name__ == "__main__":
+
+    
+    pam = PyAudioManager()
+    pam.start_stream(
+        format=pyaudio.paInt16,
+        channels=1, 
+        rate=48000, 
+        input=True, 
+        input_device_index=pam.get_index(),
+        frames_per_buffer=1280
+    )
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
 

@@ -14,13 +14,7 @@ class PyAudioManager:
         if self.stream is not None:
             return self.stream
         
-        try:
-            self.stream = self.py_audio.open(*args, **kwargs)
-        except:
-            self.stop_stream()
-            time.sleep(1)
-            print("RETRY CONNECTIOIN")
-            return self.start_stream(*args, **kwargs)
+        self.stream = self.py_audio.open(*args, **kwargs)
         return self.stream
 
     def stop_stream(self):
