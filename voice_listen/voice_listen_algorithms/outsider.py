@@ -181,7 +181,7 @@ class CloudVLAPyAudio(VLABase):
 
         while True:
             data = stream.read(CHUNK, exception_on_overflow=False)
-            data = self.process_audio(data, RATE)
+            # data = self.process_audio(data, RATE)
             slid_win.append(math.sqrt(abs(self.get_rms(data))))
             
             rms_val = self.get_rms(data)
