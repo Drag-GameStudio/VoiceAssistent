@@ -115,6 +115,8 @@ class CloudVLA(VLABase):
                     except PermissionError:
                         print("Не удалось удалить временный файл, он еще занят.")
 
+import numpy as np
+import noisereduce as nr
 
 class CloudVLAPyAudio(VLABase):
     def __init__(self, *args, lang="ru", timeout: float = 5):
@@ -140,6 +142,11 @@ class CloudVLAPyAudio(VLABase):
             n = sample * (1.0 / 32768)
             sum_squares += n * n
         return math.sqrt(sum_squares / count)
+
+    def process_audio(self, data, rate):
+        audio_data = np.frombuffer(data, dtype=np.int16)
+        reduced_noise = nr.reduce_noise(y=audio_data, sr=rate, stationary=True, prop_decrease=0.65)
+        return reduced_noise.astype(np.int16).tobytes()
 
     def recognize_text(self):
 
@@ -174,6 +181,7 @@ class CloudVLAPyAudio(VLABase):
 
         while True:
             data = stream.read(CHUNK, exception_on_overflow=False)
+            data = self.process_audio(data, RATE)
             slid_win.append(math.sqrt(abs(self.get_rms(data))))
             
             rms_val = self.get_rms(data)
