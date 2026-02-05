@@ -47,6 +47,8 @@ import speech_recognition as sr
 import os
 import tempfile
 import time
+import struct
+import math
 
 class CloudVLA(VLABase):
     def __init__(self, *args, lang="ru", timeout: float = 5):
@@ -112,3 +114,133 @@ class CloudVLA(VLABase):
                         os.remove(wave_path)
                     except PermissionError:
                         print("Не удалось удалить временный файл, он еще занят.")
+
+
+class CloudVLAPyAudio(VLABase):
+    def __init__(self, *args, lang="ru", timeout: float = 5):
+        super().__init__(*args)
+        self.recognizer = sr.Recognizer()
+        self.lang = "ru-RU" if lang == "ru" else "en-US"
+        self.timeout = timeout
+        self.source = None
+        self.mic_index = PyAudioManager().get_index()
+        self.pam = PyAudioManager()
+        
+        print("READY")
+
+    def get_rms(self, data):
+        
+        count = len(data) / 2
+        if count == 0:
+            return 0
+        format = "%dh" % (count)
+        shorts = struct.unpack(format, data)
+        sum_squares = 0.0
+        for sample in shorts:
+            n = sample * (1.0 / 32768)
+            sum_squares += n * n
+        return math.sqrt(sum_squares / count)
+
+
+    def recognize_text(self):
+
+        THRESHOLD = 0.01
+        SILENCE_LIMIT = 2
+
+
+        stream_info = self.pam.get_current_stream_info()
+        if stream_info is None:
+            CHUNK = 1280
+            FORMAT = pyaudio.paInt16
+            CHANNELS = 1
+            RATE = 48000
+
+            stream = self.pam.start_stream(format=FORMAT,
+                        channels=CHANNELS,
+                        rate=RATE,
+                        input=True,
+                        frames_per_buffer=CHUNK)
+        else:
+            CHUNK = stream_info["frames_per_buffer"]
+            RATE = stream_info["rate"]
+            stream = self.pam.start_stream()
+
+        audio2send = []
+        rel = RATE / CHUNK
+        slid_win = []
+        prev_audio = []
+        started = False
+        
+        silence_start = None 
+
+        while True:
+            data = stream.read(CHUNK, exception_on_overflow=False)
+            slid_win.append(math.sqrt(abs(self.get_rms(data))))
+            
+            rms_val = self.get_rms(data)
+
+            if started:
+                audio2send.append(data)
+                
+                if rms_val < THRESHOLD:
+                    if silence_start is None:
+                        silence_start = time.time()
+                    else:
+                        if time.time() - silence_start > SILENCE_LIMIT:
+                            print("Фраза закончена.")
+                            break
+                else:
+                    silence_start = None
+            
+            elif rms_val > THRESHOLD:
+                print("Обнаружен голос, запись пошла...")
+                started = True
+                audio2send.extend(prev_audio)
+                audio2send.append(data)
+                silence_start = None  # Сброс таймера
+
+            prev_audio.append(data)
+            if len(prev_audio) > int(rel * 0.5):
+                prev_audio.pop(0)
+        self.end_listen()
+        
+        raw_data = b''.join(audio2send)
+
+        recognizer = sr.Recognizer()
+        audio_source = sr.AudioData(raw_data, RATE, 2)
+        
+        out = {}
+        
+        try:
+            # Распознаем
+            text = recognizer.recognize_google(audio_source, language="ru-RU")
+            out = {
+                "success": True,
+                "text": text,
+                "duration": len(raw_data) / RATE / 2
+            }
+        except sr.UnknownValueError:
+            out = {
+                "success": False,
+                "text": None,
+                "error": "Не удалось распознать речь"
+            }
+        except Exception as e:
+            out = {
+                "success": False,
+                "text": None,
+                "error": str(e)
+            }
+            
+        return out
+
+    def listen_micro(self):
+        
+
+        while True:
+            result = self.recognize_text()
+            if result["success"] == False or result["text"] is None or result["text"] == "":
+                break
+            
+            self.send_request(result["text"])
+        

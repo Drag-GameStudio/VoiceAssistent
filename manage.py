@@ -9,7 +9,7 @@ from voice_activation.voice_activations_algorithms.text import VAText
 from voice_activation.va_manage import VAManager
 
 from voice_listen.voice_listen_manage import VLManager
-from voice_listen.voice_listen_algorithms.outsider import CloudVLA, VoskVLA
+from voice_listen.voice_listen_algorithms.outsider import CloudVLA, VoskVLA, CloudVLAPyAudio
 from voice_listen.voice_listen_algorithms.text import VLAText
 
 from engine.engine_manage import EngineManager
@@ -18,6 +18,8 @@ from engine.engines.llm_engine import GroqLLMEngine, History
 from voice_acting.voice_acting_manage import VActingManager
 from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm
 from voice_acting.voice_acting_algorithms.text import VActingText
+
+from singleton_models.py_audio_singleton import PyAudioManager
 
 from engine.engines.promts import general_prompt_create, DONATIK_ID
 from singleton_models.middleware import middleware_object
@@ -45,13 +47,25 @@ import subprocess
 import pygame
 def start_keep_alive():
     import pygame
-
+    pygame.mixer.pre_init(48000, -16, 1, 2560)
     pygame.mixer.init()
 
     silence = pygame.mixer.Sound(buffer=b'\x00' * 1024)
     silence.play(loops=-1)
+import pyaudio
 
 if __name__ == "__main__":
+
+    
+    pam = PyAudioManager()
+    pam.start_stream(
+        format=pyaudio.paInt16,
+        channels=1, 
+        rate=48000, 
+        input=True, 
+        input_device_index=pam.get_index(),
+        frames_per_buffer=1280
+    )
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
 
@@ -70,7 +84,7 @@ if __name__ == "__main__":
     vacting_manager = VActingManager(edge_alg)
     
 
-    vla = CloudVLA(create_handler(va_manager, vacting_manager, e_manager))
+    vla = CloudVLAPyAudio(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
 
     manager = Manager(va_manager, vl_manager)    

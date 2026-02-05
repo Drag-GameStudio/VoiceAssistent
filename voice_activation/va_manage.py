@@ -7,6 +7,7 @@ from singleton_models.middleware import middleware_object
 import os
 import signal
 import time
+import platform
 
 class VAManager:
 
@@ -33,9 +34,13 @@ class VAManager:
                 middleware_object.start_action("activate_by_word")
                 break
 
-        pam.stop_stream()
         self.predict_algorithm.quite_proccessing()
-
         time.sleep(0.3)
         if multi_worker:
-            os.kill(os.getpid(), signal.SIGKILL)
+            current_os = platform.system()
+            pid = os.getpid()
+
+            if current_os == "Windows":
+                os.kill(pid, signal.SIGTERM)
+            else:
+                os.kill(pid, signal.SIGKILL)

@@ -16,7 +16,6 @@ class Middleware:
 
     def activate_by_word(self):
         self.play_sound_manager.play_sound(r"ssword_activate.mp3")
-        # self.play_sound_manager.play_sound(r"ssstop.mp3")
 
     def stop_listening(self):
         self.play_sound_manager.play_sound(r"ssstop.mp3")
@@ -26,6 +25,13 @@ class Middleware:
 
     def end_task(self):
         self.play_sound_manager.play_sound(r"ssword_activate.mp3")
+
+    def run_module(self):
+        self.play_sound_manager.play_sound(r"ssrun_module.mp3")
+
+    def end_module(self):
+        self.play_sound_manager.play_sound(r"ssend_module.mp3")
+
 
 
 
