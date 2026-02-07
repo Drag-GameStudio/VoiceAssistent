@@ -21,7 +21,7 @@ from voice_acting.voice_acting_algorithms.text import VActingText
 
 from singleton_models.py_audio_singleton import PyAudioManager
 
-from engine.engines.promts import general_prompt_create, DONATIK_ID
+from engine.engines.promts import general_prompt_create, DONATIK_ID, ALEXA_ID
 from singleton_models.middleware import middleware_object
 from process_control.runner import create_handler
 
@@ -37,7 +37,7 @@ class Manager:
 
     def start(self):
         while True:
-            self.va_manager.listen_micro(multi_worker=False)
+            # self.va_manager.listen_micro(multi_worker=False)
             self.vl_manager.listen_micro()
 
 
@@ -71,20 +71,20 @@ if __name__ == "__main__":
 
     threading.Thread(target=start_keep_alive).start()
 
-    bot_settings = general_prompt_create("ru", DONATIK_ID)
+    bot_settings = general_prompt_create("ru", ALEXA_ID)
     engine = GroqLLMEngine(api_key=groq_api_key, history=History(bot_settings))
     e_manager = EngineManager(engine)
 
-    predict_algorithm = PVAlgorithm(word_api_key, "alexa")
-    # predict_algorithm = VAText()
+    # predict_algorithm = PVAlgorithm(word_api_key, "alexa")
+    predict_algorithm = VAText()
     va_manager = VAManager(predict_algorithm)
 
-    edge_alg = GoogleVActingAlgorithm()
-    # edge_alg = VActingText()
+    # edge_alg = GoogleVActingAlgorithm()
+    edge_alg = VActingText()
     vacting_manager = VActingManager(edge_alg)
     
 
-    vla = CloudVLAPyAudio(create_handler(va_manager, vacting_manager, e_manager))
+    vla = VLAText(create_handler(va_manager, vacting_manager, e_manager))
     vl_manager = VLManager(vla)
 
     manager = Manager(va_manager, vl_manager)    

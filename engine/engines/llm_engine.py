@@ -1,6 +1,6 @@
 from .base import BaseEngine
 from groq import Groq
-from .promts import DEFAULT_ASSISTENT_PROMPT, general_prompt_create, DONATIK_ID
+from .promts import general_prompt_create
 from singleton_models.middleware import middleware_object
 from data_base.dialogs.models import Dialog
 
@@ -41,7 +41,7 @@ class History():
 class LLMModel(BaseEngine):
     def __init__(self, api_key: str, 
                  model_name: str = "openai/gpt-oss-120b", 
-                 history: History = History(general_prompt_create("ru", DONATIK_ID)),
+                 history: History = History(general_prompt_create("ru", "")),
                  ):
         super().__init__()
         self.history = history
