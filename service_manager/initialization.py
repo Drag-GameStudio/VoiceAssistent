@@ -23,6 +23,12 @@ Available Modules:
 """
 
 
+def init_modules():
+    for module_name in INSTALLED_APPS:
+        curr_cls = get_cls_module(module_name)
+        curr_cls()
+        
+
 def get_prompt_for_modules():
     final_prompt = BASE_PROMPT
     for module_name in INSTALLED_APPS:

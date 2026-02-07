@@ -5,6 +5,9 @@ import asyncio
 
 class Weather(BaseService):
 
+    def __init__(self):
+        super().__init__()
+
     async def get_weather(self, city):
         # Создаем клиент (imperial=False для градусов Цельсия)
         async with python_weather.Client(unit=python_weather.METRIC) as client:

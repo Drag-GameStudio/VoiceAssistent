@@ -25,6 +25,8 @@ from engine.engines.promts import general_prompt_create, DONATIK_ID, ALEXA_ID
 from singleton_models.middleware import middleware_object
 from process_control.runner import create_handler
 
+from service_manager.initialization import init_modules
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -68,6 +70,8 @@ if __name__ == "__main__":
     )
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
+
+    init_modules()
 
     threading.Thread(target=start_keep_alive).start()
 

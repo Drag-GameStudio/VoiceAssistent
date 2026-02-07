@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, ABCMeta
 from singleton_models.middleware import middleware_object
 
 class classproperty(object):
@@ -8,8 +8,14 @@ class classproperty(object):
         return self.fget(owner_cls)
 
 
+class Singleton(ABCMeta):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-class BaseService(ABC):
+class BaseService(ABC, metaclass=Singleton):
 
     def global_handle(self, **kwargs):
         middleware_object.start_action("run_module")
