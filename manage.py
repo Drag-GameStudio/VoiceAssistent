@@ -39,7 +39,7 @@ class Manager:
 
     def start(self):
         while True:
-            # self.va_manager.listen_micro(multi_worker=False)
+            self.va_manager.listen_micro(multi_worker=False)
             self.vl_manager.listen_micro()
 
 
