@@ -80,6 +80,7 @@ class GoogleVActingAlgorithm(BaseVActingAlgorithm):
 
     def acting(self, request: str):
         req_parts = request.split(".")
+        req_parts = [el + "." for el in req_parts]
         if len(req_parts[-1]) < 2:
             req_parts.pop(len(req_parts) - 1)
         gen_voice_workers = [threading.Thread(target=self.gen_sound, args=(i, part)) for i, part in enumerate(req_parts)]

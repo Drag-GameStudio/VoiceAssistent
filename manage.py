@@ -17,6 +17,7 @@ from engine.engines.llm_engine import GroqLLMEngine, History
 
 from voice_acting.voice_acting_manage import VActingManager
 from voice_acting.voice_acting_algorithms.edge_algorithm import EdgeVActingAlgorithm, GoogleVActingAlgorithm
+from voice_acting.voice_acting_algorithms.api_alg import ApiSideVActingAlgorithm
 from voice_acting.voice_acting_algorithms.text import VActingText
 
 from singleton_models.py_audio_singleton import PyAudioManager
@@ -70,6 +71,8 @@ if __name__ == "__main__":
     )
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
+    word_api_key = os.getenv("WORD_API_KEY")
+
 
     init_modules()
 
@@ -83,9 +86,10 @@ if __name__ == "__main__":
     # predict_algorithm = VAText()
     va_manager = VAManager(predict_algorithm)
 
-    edge_alg = GoogleVActingAlgorithm()
+    # edge_alg = GoogleVActingAlgorithm()
+    api_alg = ApiSideVActingAlgorithm(api_key="e074085169d0366df5b48f5dba1e467adf8fc0c8b6bf1d8738e89486ea1afb07")
     # edge_alg = VActingText()
-    vacting_manager = VActingManager(edge_alg)
+    vacting_manager = VActingManager(api_alg)
     
 
     vla = CloudVLAPyAudio(create_handler(va_manager, vacting_manager, e_manager))
