@@ -71,7 +71,7 @@ if __name__ == "__main__":
     )
     groq_api_key = os.getenv("GROQ_API_KEY")
     word_api_key = os.getenv("WORD_API_KEY")
-    word_api_key = os.getenv("WORD_API_KEY")
+    eleven_api_key = os.getenv("ELEVEN_API_KEY")
 
 
     init_modules()
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     va_manager = VAManager(predict_algorithm)
 
     # edge_alg = GoogleVActingAlgorithm()
-    api_alg = ApiSideVActingAlgorithm(api_key="e074085169d0366df5b48f5dba1e467adf8fc0c8b6bf1d8738e89486ea1afb07")
+    api_alg = ApiSideVActingAlgorithm(api_key=eleven_api_key)
     # edge_alg = VActingText()
     vacting_manager = VActingManager(api_alg)
     
