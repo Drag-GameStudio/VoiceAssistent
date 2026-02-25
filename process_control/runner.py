@@ -68,10 +68,14 @@ def run_multi_va_and_task(request, va_manager: VAManager, run_func):
 
 def handler_func(request, vacting_manager: VActingManager, e_manager: EngineManager):
     engine_result = e_manager.handle(request)
-    is_command, result = postprocess_service_handle(engine_result)
-    if is_command:
-        prompt = f"{DISCRIBE_ACTION} \n{result}"
-        result = e_manager.handle(prompt)
+    result = engine_result
+    while True:
+        is_command, result = postprocess_service_handle(result)
+        if is_command:
+            prompt = f"{DISCRIBE_ACTION} \n{result}"
+            result = e_manager.handle(prompt)
+            continue
+        break
     
     vacting_manager.acting(result)
 
